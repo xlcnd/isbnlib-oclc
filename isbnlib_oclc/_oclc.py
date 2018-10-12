@@ -4,10 +4,9 @@
 import logging
 import re
 
-from .dev import stdmeta
-from .dev._bouth23 import u
-from .dev._exceptions import (NoDataForSelectorError, RecordMappingError)
-from .dev.webquery import query as wquery
+from isbnlib.dev import stdmeta
+from isbnlib.dev._bouth23 import u
+from isbnlib.dev.webquery import query as wquery
 
 UA = 'isbnlib (gzip)'
 SERVICE_URL = 'http://classify.oclc.org/classify2/Classify?isbn={isbn}'\
@@ -37,19 +36,19 @@ def _clean(txt):
 def _mapper(isbn, records):
     """Mapp: canonical <- records."""
     # canonical: ISBN-13, Title, Authors, Publisher, Year, Language
+    canonical = {}
     try:
-        canonical = {}
         canonical['ISBN-13'] = u(isbn)
         canonical['Title'] = records.get('title', u('')).replace(' :', ':')
         buf = records.get('author', u(''))
         canonical['Authors'] = [_clean(x) for x in buf.split('|')]
         canonical['Publisher'] = records.get('publisher', u(''))
-        canonical['Year'] = records.get('hyr', u('')) or records.get('lyr',
-                                                                     u(''))
+        canonical['Year'] = records.get('hyr', u('')) or records.get(
+            'lyr', u(''))
         canonical['Language'] = records.get('lang', u(''))
-    except:  # pragma: no cover
+    except IndexError:  # pragma: no cover
         LOGGER.debug("RecordMappingError for %s with data %s", isbn, records)
-        raise RecordMappingError(isbn)
+        return canonical
     # call stdmeta for extra cleanning and validation
     return stdmeta(canonical)
 
@@ -59,7 +58,7 @@ def _records(isbn, data):
     # check data
     if not data:
         LOGGER.debug('NoDataForSelectorError for %s', isbn)
-        raise NoDataForSelectorError(isbn)
+        return {}
     # map canonical <- records
     return _mapper(isbn, data)
 
