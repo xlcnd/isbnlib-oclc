@@ -19,10 +19,11 @@ matrix:
       env: TOXENV=nightly
     - python: "3.5"
       env: TOXENV=checkers
+    - python: "3.6"
+      env: ENV=dev
     allow_failures:
     - env: TOXENV=nightly
-    - env: TOXENV=py34
-    - env: TOXENV=checkers
+    - env: ENV=dev
 install:
 - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then pip3 install tox; fi
 - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then pip3 install -r requirements.txt; fi
@@ -36,7 +37,10 @@ install:
 script:
 - if [[ $TRAVIS_PULL_REQUEST != 'false' ]] && [[ $TOXENV == 'checkers' ]]; then yapf -i isbnlib_oclc; fi
 - if [[ ! -z $TOXENV ]]; then tox -e $TOXENV; fi
+- if [[ $ENV == 'dev' ]]; then tox -e py36 -c tox-dev.ini; fi
 after_success:
 - if [[ $TOXENV == 'py35' ]]; then coveralls; fi
 notifications:
-  email: false
+  email:
+    on_success: never
+    on_failure: always
