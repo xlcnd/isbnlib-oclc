@@ -72,8 +72,7 @@ def reparser(xmlthing):
             flds = RE_FLDS.findall(buf)
             vals = RE_VALS.findall(buf)
             return dict(zip(flds, vals))
-        except:
-            # FIXME
+        except Exception:
             pass
     return
 
