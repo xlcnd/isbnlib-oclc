@@ -22,6 +22,7 @@ RE_PUB = re.compile(r'<textarea name="" id="util-em-note" .*/textarea>',
                     re.I | re.M | re.S)
 RE_FP = re.compile(r'(Publisher):\s*', re.I | re.M | re.S)
 RE_VP = re.compile(r'Publisher:\s*(.*?)\n', re.I | re.M | re.S)
+RE_YEAR = re.compile(r'([0-2][0-9]{3})', re.I | re.M | re.S)
 
 
 def _clean(txt):
@@ -141,6 +142,6 @@ def query(isbn):
         buf = data2.get('Publisher', u('')).split(':')[1]
         publisher, year = buf.split(',')
         data['publisher'] = publisher.strip()
-        data['year'] = year.strip('. ')
+        data['year'] = RE_YEAR.search(year.strip('. ')).group(0)
 
     return _records(isbn, data)
