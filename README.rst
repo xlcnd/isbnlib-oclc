@@ -4,5 +4,3 @@ A metadata plugin for isbnlib (https://pypi.python.org/pypi/isbnlib) using the s
 
 After install, a new metadata provider (oclc) is available in isbnlib.
 
-**WARNING** The field `publisher` is not available for this service!
-

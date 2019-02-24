@@ -10,12 +10,18 @@ from isbnlib.dev.webquery import query as wquery
 
 UA = 'isbnlib (gzip)'
 SERVICE_URL = 'http://classify.oclc.org/classify2/Classify?isbn={isbn}'\
-              '&maxRecs=1&summary=true'
+              '&maxRecs=1'
+SERVICE_URL2 = 'http://www.worldcat.org/oclc/{oclc}'
 LOGGER = logging.getLogger(__name__)
 
 RE_FLDS = re.compile(r'\s([a-z]+)="', re.I | re.M | re.S)
 RE_VALS = re.compile(r'="(.*?)"', re.I | re.M | re.S)
 RE_WORK = re.compile(r'<work .*/>', re.I | re.M | re.S)
+RE_EDIT = re.compile(r'<edition .*/>', re.I | re.M | re.S)
+RE_PUB = re.compile(r'<textarea name="" id="util-em-note" .*/textarea>',
+                    re.I | re.M | re.S)
+RE_FP = re.compile(r'(Publisher):\s*', re.I | re.M | re.S)
+RE_VP = re.compile(r'Publisher:\s*(.*?)\n', re.I | re.M | re.S)
 
 
 def _clean(txt):
@@ -43,8 +49,7 @@ def _mapper(isbn, records):
         buf = records.get('author', u(''))
         canonical['Authors'] = [_clean(x) for x in buf.split('|')]
         canonical['Publisher'] = records.get('publisher', u(''))
-        canonical['Year'] = records.get('hyr', u('')) or records.get(
-            'lyr', u(''))
+        canonical['Year'] = records.get('year', u(''))
         canonical['Language'] = records.get('lang', u(''))
     except IndexError:  # pragma: no cover
         LOGGER.debug("RecordMappingError for %s with data %s", isbn, records)
@@ -63,8 +68,13 @@ def _records(isbn, data):
     return _mapper(isbn, data)
 
 
-def reparser(xmlthing):
-    """RE parser for classify.oclc service."""
+def noparser(xmlthing):
+    """Keep the raw response from the service."""
+    return xmlthing
+
+
+def parser_work(xmlthing):
+    """RE parser for classify.oclc service (work branch)."""
     match = RE_WORK.search(u(xmlthing))
     if match:
         try:
@@ -74,14 +84,98 @@ def reparser(xmlthing):
             return dict(zip(flds, vals))
         except Exception:
             pass
-    return
+    return None
 
 
-def query(isbn):
+def parser_edit(xmlthing):
+    """RE parser for classify.oclc service (edition branch)."""
+    match = RE_EDIT.search(u(xmlthing))
+    if match:
+        try:
+            buf = match.group()
+            flds = RE_FLDS.findall(buf)
+            vals = RE_VALS.findall(buf)
+            return dict(zip(flds, vals))
+        except Exception:
+            pass
+    return None
+
+
+def parser_pub(htmlthing):
+    """RE parser for classify.oclc service (publisher and year)."""
+    match = RE_PUB.search(u(htmlthing))
+    if match:
+        try:
+            buf = match.group()
+            flds = RE_FP.findall(buf)
+            vals = RE_VP.findall(buf)
+            return dict(zip(flds, vals))
+        except Exception:
+            pass
+    return None
+
+
+def query_old(isbn):
     """Query the classify.oclc service for metadata."""
+    # TODO hold the xmlthing from the service and reparse it!
     data = wquery(
         SERVICE_URL.format(isbn=isbn),
         user_agent=UA,
         data_checker=None,
-        parser=reparser)
+        parser=parser_edit)
+    if not data:  # noqa
+        data = wquery(
+            SERVICE_URL.format(isbn=isbn),
+            user_agent=UA,
+            data_checker=None,
+            parser=parser_work)
+        if not data:
+            return {}
+        data['year'] = data.get('hyr', u('')) or data.get('lyr', u(''))
+        return _records(isbn, data)
+    oclc = data.get('oclc', u(''))
+    if oclc:
+        data2 = wquery(
+            SERVICE_URL2.format(oclc=oclc),
+            user_agent=UA,
+            data_checker=None,
+            parser=parser_pub)
+        if not data2:  # noqa
+            return {}
+        buf = data2.get('Publisher', u('')).split(':')[1]
+        publisher, year = buf.split(',')
+        data['publisher'] = publisher.strip()
+        data['year'] = year.strip('. ')
+
+    return _records(isbn, data)
+
+
+def query(isbn):
+    """Query the classify.oclc service for metadata."""
+    xml = wquery(
+        SERVICE_URL.format(isbn=isbn),
+        user_agent=UA,
+        data_checker=None,
+        parser=noparser)
+    data = parser_edit(xml)
+    if not data:
+        data = parser_work(xml)
+        if not data:  # noqa
+            return {}
+        data['year'] = data.get('hyr', u('')) or data.get('lyr', u(''))
+        return _records(isbn, data)
+    oclc = data.get('oclc', u(''))
+    if oclc:
+        data2 = wquery(
+            SERVICE_URL2.format(oclc=oclc),
+            user_agent=UA,
+            data_checker=None,
+            parser=parser_pub)
+        if not data2:  # noqa
+            return {}
+        buf = data2.get('Publisher', u('')).split(':')[1]
+        publisher, year = buf.split(',')
+        data['publisher'] = publisher.strip()
+        data['year'] = year.strip('. ')
+
     return _records(isbn, data)
