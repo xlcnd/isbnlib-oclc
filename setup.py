@@ -27,7 +27,7 @@ setup(
     author='xlcnd',
     author_email='xlcnd@outlook.com',
     url='https://github.com/xlcnd/isbnlib-oclc',
-    download_url='https://github.com/xlcnd/isbnlib-oclc/archive/v0.0.1.zip',
+    download_url='https://github.com/xlcnd/isbnlib-oclc/archive/v0.0.2.zip',
     packages=['isbnlib_oclc/'],
     entry_points={'isbnlib.metadata': ['oclc=isbnlib_oclc:query']},
     install_requires=["isbnlib>=3.9.1,<3.10.0"],
