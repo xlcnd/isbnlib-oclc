@@ -32,5 +32,5 @@ def test_query_exists_publisher():
 
 def test_query_exists_year():
     """Test exists 'Year'."""
-    assert_equals(len(repr(q1['Year'])) == 6, True)
-    assert_equals(len(repr(q2['Year'])) == 6, True)
+    assert_equals(len(repr(q1['Year'])) > 4, True)
+    assert_equals(len(repr(q2['Year'])) > 4, True)
