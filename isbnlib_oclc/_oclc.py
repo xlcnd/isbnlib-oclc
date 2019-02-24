@@ -115,41 +115,6 @@ def parser_pub(htmlthing):
     return None
 
 
-def query_old(isbn):
-    """Query the classify.oclc service for metadata."""
-    # TODO hold the xmlthing from the service and reparse it!
-    data = wquery(
-        SERVICE_URL.format(isbn=isbn),
-        user_agent=UA,
-        data_checker=None,
-        parser=parser_edit)
-    if not data:  # noqa
-        data = wquery(
-            SERVICE_URL.format(isbn=isbn),
-            user_agent=UA,
-            data_checker=None,
-            parser=parser_work)
-        if not data:
-            return {}
-        data['year'] = data.get('hyr', u('')) or data.get('lyr', u(''))
-        return _records(isbn, data)
-    oclc = data.get('oclc', u(''))
-    if oclc:
-        data2 = wquery(
-            SERVICE_URL2.format(oclc=oclc),
-            user_agent=UA,
-            data_checker=None,
-            parser=parser_pub)
-        if not data2:  # noqa
-            return {}
-        buf = data2.get('Publisher', u('')).split(':')[1]
-        publisher, year = buf.split(',')
-        data['publisher'] = publisher.strip()
-        data['year'] = year.strip('. ')
-
-    return _records(isbn, data)
-
-
 def query(isbn):
     """Query the classify.oclc service for metadata."""
     xml = wquery(
@@ -160,7 +125,7 @@ def query(isbn):
     data = parser_edit(xml)
     if not data:
         data = parser_work(xml)
-        if not data:  # noqa
+        if not data:  # pragma: no cover
             return {}
         data['year'] = data.get('hyr', u('')) or data.get('lyr', u(''))
         return _records(isbn, data)
@@ -171,7 +136,7 @@ def query(isbn):
             user_agent=UA,
             data_checker=None,
             parser=parser_pub)
-        if not data2:  # noqa
+        if not data2:  # pragma: no cover
             return {}
         buf = data2.get('Publisher', u('')).split(':')[1]
         publisher, year = buf.split(',')
