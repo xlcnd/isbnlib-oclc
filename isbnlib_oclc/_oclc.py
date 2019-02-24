@@ -61,7 +61,7 @@ def _mapper(isbn, records):
 def _records(isbn, data):
     """Classify (canonically) the parsed data."""
     # check data
-    if not data:
+    if not data:  # pragma: no cover
         LOGGER.debug('NoDataForSelectorError for %s', isbn)
         return {}
     # map canonical <- records
@@ -82,7 +82,7 @@ def parser_work(xmlthing):
             flds = RE_FLDS.findall(buf)
             vals = RE_VALS.findall(buf)
             return dict(zip(flds, vals))
-        except Exception:
+        except Exception:  # pragma: no cover
             pass
     return None
 
@@ -96,7 +96,7 @@ def parser_edit(xmlthing):
             flds = RE_FLDS.findall(buf)
             vals = RE_VALS.findall(buf)
             return dict(zip(flds, vals))
-        except Exception:
+        except Exception:  # pragma: no cover
             pass
     return None
 
@@ -110,7 +110,7 @@ def parser_pub(htmlthing):
             flds = RE_FP.findall(buf)
             vals = RE_VP.findall(buf)
             return dict(zip(flds, vals))
-        except Exception:
+        except Exception:  # pragma: no cover
             pass
     return None
 
