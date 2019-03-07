@@ -123,6 +123,8 @@ def query(isbn):
         user_agent=UA,
         data_checker=None,
         parser=noparser)
+    if not xml:
+        return {}
     data = parser_edit(xml)
     if not data:
         data = parser_work(xml)
