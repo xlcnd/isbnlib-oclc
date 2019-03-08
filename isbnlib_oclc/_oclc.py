@@ -124,15 +124,14 @@ def query(isbn):
         data_checker=None,
         parser=noparser)
     if not xml or u('response code') in xml:
-        LOGGER.debug("The service 'oclc' is temporarilly down!")
+        LOGGER.debug("The service 'oclc' is temporarily down!")
         return {}
     data = parser_edit(xml)
     if not data:
-        LOGGER.debug("The parser 'edit' was unsucessful for service 'oclc'!")
+        LOGGER.debug("The parser 'edit' was unsucessful for %s!", isbn)
         data = parser_work(xml)
         if not data:  # pragma: no cover
-            LOGGER.debug(
-                "The parser 'work' was unsucessful for service 'oclc'!")
+            LOGGER.debug("The parser 'work' was unsucessful for %s!", isbn)
             return {}
         data['year'] = data.get('hyr', u('')) or data.get('lyr', u(''))
         return _records(isbn, data)
@@ -144,8 +143,7 @@ def query(isbn):
             data_checker=None,
             parser=parser_pub)
         if not data2:  # pragma: no cover
-            LOGGER.debug(
-                "The parser 'pub' was unsucessful for service 'oclc'!")
+            LOGGER.debug("The parser 'pub' was unsucessful for %s!", isbn)
             return {}
         buf = data2.get('Publisher', u('')).split(':')[1]
         publisher, year = buf.split(',')
