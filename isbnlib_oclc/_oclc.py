@@ -126,6 +126,7 @@ def query(isbn):
     if not xml or u('response code') in xml:
         LOGGER.debug("The service 'oclc' is temporarily down!")
         return {}
+
     data = parser_edit(xml)
     if not data:
         LOGGER.debug("The parser 'edit' was unsucessful for %s!", isbn)
@@ -133,8 +134,10 @@ def query(isbn):
         if not data:  # pragma: no cover
             LOGGER.debug("The parser 'work' was unsucessful for %s!", isbn)
             return {}
+
         data['year'] = data.get('hyr', u('')) or data.get('lyr', u(''))
         return _records(isbn, data)
+
     oclc = data.get('oclc', u(''))
     if oclc:
         data2 = wquery(
@@ -145,9 +148,11 @@ def query(isbn):
         if not data2:  # pragma: no cover
             LOGGER.debug("The parser 'pub' was unsucessful for %s!", isbn)
             return {}
+
         buf = data2.get('Publisher', u('')).split(':')[1]
         publisher, year = buf.split(',')
         data['publisher'] = publisher.strip()
         data['year'] = RE_YEAR.search(year.strip('. ')).group(0)
+        return _records(isbn, data)
 
-    return _records(isbn, data)
+    return {}
