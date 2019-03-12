@@ -148,11 +148,10 @@ def query(isbn):
             parser=parser_pub)
         if not data2:  # pragma: no cover
             LOGGER.debug("The parser 'pub' was unsucessful for %s!", isbn)
-            return _records(isbn, data)
-
-        buf = data2.get('Publisher', u('')).split(':')[1]
-        publisher, year = buf.split(',')
-        data['publisher'] = publisher.strip()
-        data['year'] = RE_YEAR.search(year.strip('. ')).group(0)
+        else:
+            buf = data2.get('Publisher', u('')).split(':')[1]
+            publisher, year = buf.split(',')
+            data['publisher'] = publisher.strip()
+            data['year'] = RE_YEAR.search(year.strip('. ')).group(0)
 
     return _records(isbn, data)
