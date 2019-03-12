@@ -123,7 +123,7 @@ def query(isbn):
         user_agent=UA,
         data_checker=None,
         parser=noparser)
-    if not xml or u('response code') in xml:
+    if not xml or 'response code="102"' in xml:
         LOGGER.debug("The service 'oclc' is temporarily down!")
         return {}
 
