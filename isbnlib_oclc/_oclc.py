@@ -138,6 +138,7 @@ def query(isbn):
         data['year'] = data.get('hyr', u('')) or data.get('lyr', u(''))
         return _records(isbn, data)
 
+    # try to add more data...
     oclc = data.get('oclc', u(''))
     if oclc:
         data2 = wquery(
@@ -153,6 +154,6 @@ def query(isbn):
         publisher, year = buf.split(',')
         data['publisher'] = publisher.strip()
         data['year'] = RE_YEAR.search(year.strip('. ')).group(0)
-        return _records(isbn, data)
 
-    return {}
+    return _records(isbn, data)
+
