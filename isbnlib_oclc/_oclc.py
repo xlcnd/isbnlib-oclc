@@ -156,4 +156,3 @@ def query(isbn):
         data['year'] = RE_YEAR.search(year.strip('. ')).group(0)
 
     return _records(isbn, data)
-
