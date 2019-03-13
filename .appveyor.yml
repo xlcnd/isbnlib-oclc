@@ -6,7 +6,7 @@ branches:
     - /v0.0.2/
 
 cache:
-    - '%LOCALAPPDATA%\pip\Cache'
+  - '%LOCALAPPDATA%\pip\Cache'
 
 environment:
   matrix:
