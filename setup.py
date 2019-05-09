@@ -32,7 +32,7 @@ setup(
     entry_points={'isbnlib.metadata': ['oclc=isbnlib_oclc:query']},
     install_requires=["isbnlib>=3.9.1,<3.10.0"],
     license='LGPL v3',
-    description='A plugin for isbnlib that pulls metadata from classify.oclc.org.',
+    description='DISCONTINUED! A plugin for isbnlib that pulls metadata from classify.oclc.org.',
     long_description=open('README.rst').read(),
     keywords='ISBN isbnlib oclc bibliographic-references',
     classifiers=[
