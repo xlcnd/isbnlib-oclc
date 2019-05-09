@@ -20,7 +20,7 @@
 
 
 
-**THE DEVEPOPMENT OF THIS PLUGIN IS NOW STOPPED!**
+**THE DEVELOPMENT OF THIS PLUGIN IS NOW STOPPED!**
 
 A metadata plugin for ``isbnlib`` (https://pypi.python.org/pypi/isbnlib) using the service ``oclc.org``.
 
